@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Game</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="rooms.js"></script>
+	<style>
+		@font-face {
+    		font-family: Raleway;
+    		src: url('fonts/Raleway-Regular.ttf');
+		}
+		svg, input { margin: auto; display: block; border: 1px solid black; font-family: Raleway;}
+		input {width: 500; text-align: center; font-size: 20px; text-transform: lowercase;}
+	</style>
+</head>
+<body>
+	<script>
+		// set up svg
+		var width =  1000,
+			height = 480;
+		var svg_container = d3.select("body").append("svg")
+							.attr("width", width)
+							.attr("height", height);
+		// img from http://www.iconsdb.com/gray-icons/settings-icon.html
+		var settings = svg_container.append("svg:image")
+						.attr("xlink:href", "icon/settings.png")
+					    .attr("width", 50)
+					    .attr("height", 50)
+					    .attr("x", 0)
+					    .attr("y",height-50);
+		// img from http://www.1001freedownloads.com/free-clipart/entertainment-photos-line-drawing
+		var pics = svg_container.append("svg:image")
+						.attr("xlink:href", "icon/photos.png")
+					    .attr("width", 100)
+					    .attr("height", 78)
+					    .attr("x", width-100)
+					    .attr("y",height-78);
+		var txt = svg_container.append("text")
+						.attr("x", 20).attr("y", 20)
+						.text("");
+		// set up welcome screen
+		var room_id = 0;
+		var game_state = "play"
+		handleNext();
+
+		// hide/show
+		function showAndHide(parameter) {
+			var gl = document.getElementsByClassName("game_lines");
+			for (var i = 0; i < gl.length; i++) { gl[i].style.visibility=parameter;}
+		}
+
+		// delete game lines
+		function deleteGameLines() {
+			var gl = document.getElementsByClassName("game_lines");
+			for (var i = 0; i < gl.length;) gl[i].remove();
+		}
+
+		// check inventory/settings
+		pics.on('click', function(){
+			if (game_state == 'play') showAndHide("hidden");
+			txt.text("Currently viewing pics...Not implemented yet, so just click enter to continue!");
+			game_state = "menu";
+		});
+
+		settings.on('click', function(){
+			if (game_state == 'play') showAndHide("hidden");
+			txt.text("Currently viewing settings...Click enter to continue, and type directions in the text box!");
+			game_state = "menu"
+		});
+
+		// deal with key inputs
+		function keyPressed(event) {
+			var charCode = event.which || event.keyCode;
+			if (charCode == '13') {
+				var input_value = document.getElementById('input').value;
+				document.getElementById('input').value = "";
+				if (input_value == '' && game_state == 'menu') {
+					game_state = "play";
+      				txt.text("");
+      				showAndHide("visible");
+				}
+				else if (game_state == 'play') {
+					if (validInput(input_value)) {
+						txt.text("");
+	      				handleNext();
+					}
+				}
+			}
+		};
+
+		function validInput(user_input) {
+			var validExits = rooms[room_id].exits;
+			var isValid = false;
+			validExits.forEach(function(obj){
+				if (obj.direction == user_input) {
+					room_id = obj.room;
+					isValid = true;
+				}
+			});
+			return isValid;
+		}
+
+		// handle playing
+		function handleNext() {
+			var full_text = rooms[room_id].description;
+			full_text = full_text.split(/\s+/);
+			var lines = [[]];
+			var cur_ind = 0;
+			var sum = 0;
+			full_text.forEach(function(obj){ 
+				sum += obj.length + 1;
+				lines[cur_ind].push(obj);
+				if (sum >= 120) {
+					lines.push([]);
+					cur_ind++;
+					sum = 0;
+				}
+			});
+			var line_y = 30;
+			deleteGameLines();
+			var game_lines = lines.forEach(function(obj){
+				svg_container.append("text").text(obj.join(" "))
+							.attr("x", 10).attr("y", line_y).style("color", "black")
+							.attr("class", "game_lines");
+				line_y += 30;
+			});
+		}
+
+	</script><br>
+	<input type="text" name="input" id="input" onkeypress="keyPressed(event)">
+	<p style="text-align:center"><small>Note: this box above is the textbox!</small></p>
+</body>
+</html>
