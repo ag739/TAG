@@ -3,6 +3,7 @@
 <head>
 	<title>Game</title>
 	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 	<script src="rooms.js"></script>
 	<style>
 		@font-face {
@@ -27,14 +28,16 @@
 					    .attr("width", 50)
 					    .attr("height", 50)
 					    .attr("x", 0)
-					    .attr("y",height-50);
+					    .attr("y",height-50)
+					    .attr("id", "settings");
 		// img from http://www.1001freedownloads.com/free-clipart/entertainment-photos-line-drawing
 		var pics = svg_container.append("svg:image")
 						.attr("xlink:href", "icon/photos.png")
 					    .attr("width", 100)
 					    .attr("height", 78)
 					    .attr("x", width-100)
-					    .attr("y",height-78);
+					    .attr("y",height-78)
+					    .attr("id", "pics");
 		var txt = svg_container.append("text")
 						.attr("x", 20).attr("y", 20)
 						.text("");
@@ -55,10 +58,35 @@
 			for (var i = 0; i < gl.length;) gl[i].remove();
 		}
 
+		function deleteImgs() {
+			var imgLines = document.getElementsByClassName("img_lines");
+			for (var i = 0; i < imgLines.length;) imgLines[i].remove();
+		}
+
 		// check inventory/settings
 		pics.on('click', function(){
 			if (game_state == 'play') showAndHide("hidden");
-			txt.text("Currently viewing pics...Not implemented yet, so just click enter to continue!");
+			if (start_items.length == 0 ) {
+				txt.text("Currently viewing pics...Not implemented yet, so just click enter to continue!");
+			} else {
+				var len = start_items.length;
+				if (len > 8) len = 8;
+				var x = 40, y = 10;
+				for (var i = 0; i < len; i++) {
+					svg_container.append("svg:image")
+						.attr("xlink:href", "img/"+start_items[i]+".JPG")
+						.attr("width", 200)
+						.attr("height", 200)
+						.attr("x", x)
+						.attr("y", y)
+						.attr("class", "img_lines");
+					x += 240;
+					if (x == 1000) {
+						x = 40; y += 210;
+					}
+
+				}
+			}
 			game_state = "menu";
 		});
 
@@ -68,6 +96,24 @@
 			game_state = "menu"
 		});
 
+		$('#settings').mouseover( function(){
+			svg_container.append("text").attr("x", 10).attr("y",height-65).text("Settings").attr("id", "hoverItem");
+			$(this).css('cursor','pointer');
+
+		});
+		$('#settings').mouseout( function() {
+			$('#hoverItem').remove();
+			$(this).css('cursor','auto');
+		})
+		$('#pics').mouseover( function(){
+			svg_container.append("text").attr("x", width-135).attr("y",height-85).text("Photos/Inventory").attr("id", "hoverItem");
+			$(this).css('cursor','pointer');
+		});
+		$('#pics').mouseout( function() {
+			$('#hoverItem').remove();
+			$(this).css('cursor','auto');
+		})
+
 		// deal with key inputs
 		function keyPressed(event) {
 			var charCode = event.which || event.keyCode;
@@ -76,6 +122,7 @@
 				document.getElementById('input').value = "";
 				if (input_value == '' && game_state == 'menu') {
 					game_state = "play";
+					deleteImgs();
       				txt.text("");
       				showAndHide("visible");
 				}
