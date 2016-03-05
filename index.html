@@ -41,7 +41,7 @@
 		// set up welcome screen
 		var room_id = 0;
 		var game_state = "play"
-		handleNext();
+		handleNext(30);
 
 		// hide/show
 		function showAndHide(parameter) {
@@ -80,9 +80,17 @@
       				showAndHide("visible");
 				}
 				else if (game_state == 'play') {
-					if (validInput(input_value)) {
+					var whatToDoNext = validInput(input_value);
+					if (whatToDoNext == 'room') {
 						txt.text("");
-	      				handleNext();
+	      				handleNext(30);
+					}
+					else if (whatToDoNext != 'no') {
+						deleteGameLines();
+						svg_container.append("text").text("You picked up " + whatToDoNext)
+							.attr("x", 10).attr("y", 30).style("color", "black")
+							.attr("class", "game_lines");
+						handleNext(60);
 					}
 				}
 			}
@@ -90,18 +98,27 @@
 
 		function validInput(user_input) {
 			var validExits = rooms[room_id].exits;
-			var isValid = false;
+			var validPickUp = rooms[room_id].items;
+			var isValid = "no";
 			validExits.forEach(function(obj){
 				if (obj.direction == user_input) {
 					room_id = obj.room;
-					isValid = true;
+					isValid = "room";
 				}
 			});
+			for (var i = 0; i < validPickUp.length; i++){
+				if ("pick up " + validPickUp[i].toLowerCase() == user_input) {
+					i = i - 1;
+					var popped_obj = validPickUp.pop(i);
+					isValid = popped_obj;
+					start_items.push(popped_obj);
+				}
+			}
 			return isValid;
 		}
 
 		// handle playing
-		function handleNext() {
+		function handleNext(line_y) {
 			var full_text = rooms[room_id].description;
 			full_text = full_text.split(/\s+/);
 			var lines = [[]];
@@ -116,8 +133,7 @@
 					sum = 0;
 				}
 			});
-			var line_y = 30;
-			deleteGameLines();
+			if (line_y == 30) deleteGameLines();
 			var game_lines = lines.forEach(function(obj){
 				svg_container.append("text").text(obj.join(" "))
 							.attr("x", 10).attr("y", line_y).style("color", "black")

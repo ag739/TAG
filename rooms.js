@@ -15,7 +15,7 @@ var rooms =
     },
     {
     	"id": "1",
-    	"description": "You finally finished your CS 3110 final, which means it's time to go home for winter break! When you walk out of your final, you find over 50 messages in your 'The Clique' groupme! You find out that your friends are stranded at their respective schools, and it is your responsibility to get everyone home. Luckily for you, you have free plane tickets to travel wherever you want! It's a long trip home, so you should probably start to DRIVE home.",
+    	"description": "You finally finished your CS 3110 final, which means it's time to go home for winter break! When you walk out of your final, you find over 50 messages in your 'The Clique' groupme! You find out that your friends are stranded at their respective schools, and it is your responsibility to get everyone home. Luckily for you, you have free plane tickets to travel wherever you want! It's a long trip home, so you should probably PICK UP your SUITCASE and start to DRIVE home.",
     	"items": ["suitcase"],
     	"points": 0,
     	"exits": [
@@ -105,8 +105,8 @@ var rooms =
       	"points": 10,
       	"exits": [
         	{
-          		"direction": "start",
-          		"room": "1"
+          		"direction": "airport",
+          		"room": "2"
         	}
       	],
       	"treasure": []
@@ -125,8 +125,6 @@ var rooms =
       	"treasure": ["Ali", "Cassidy", "Kate", "Nancy", "suitcase"]
     }
 ];
-
-var start_room = "start";
 
 var items =
   [
