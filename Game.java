@@ -351,11 +351,41 @@ class HelpPanel extends JPanel {
 
 class PhotosPanel extends JPanel {
 	private ArrayList<String> fileNames = new ArrayList<String>();
-	private boolean isEnlarged = false;
+	private String photoDesc = "Click on any image to see its description!";
 
 	public void repaintComponent(ArrayList<String> objects) {
  		fileNames = objects;
+ 		photoDesc = "Click on any image to see its description!";
  		repaint();
+ 	}
+
+ 	private void getDescription() {
+ 		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				boolean inBounds = false;
+				Point me = e.getPoint();
+				int x = 50; int y = 180;
+				int l;
+				if (fileNames.size() < 9) l = fileNames.size(); else l = 9;
+				for (int i = 0; i < l; i++) {
+					Rectangle bounds = new Rectangle(x, y, 283, 283);
+					if (bounds.contains(me)) {
+						photoDesc = fileNames.get(i);
+						repaint();
+						inBounds = true;
+					}
+					x+= 308;
+		 			if (x == 974) {
+		 				x = 50; y+= 308;
+		 			}
+				}
+				if (!inBounds) {
+					photoDesc = "Click on any image to see its description!";
+					repaint();
+				}
+			}
+		});
  	}
 
 	public void paintComponent(Graphics g) {
@@ -373,7 +403,9 @@ class PhotosPanel extends JPanel {
  	    g.drawString("You can view all pictures you've picked up here.", cx,cy);  
 
  	    cx = 50; cy = 180;
- 	    for (int i = 0; i < fileNames.size(); i++) {
+ 	    int l = 9;
+ 	    if (fileNames.size() < 9) l = fileNames.size();
+ 	    for (int i = 0; i < l; i++) {
  	    	BufferedImage img = null;
  	    	try {
  	    		img = ImageIO.read(new File("img/" + fileNames.get(i) + ".jpg"));
@@ -384,59 +416,24 @@ class PhotosPanel extends JPanel {
  	    			img = ImageIO.read(new File("img/no-image-available.jpg"));
  	    		}
  	    		catch (IOException e1) {
- 	    			System.out.println("No image found");
+ 	    			System.out.println("No image found"); // this should never happen
  	    		}
  	    	}
  			g.drawImage(img, cx, cy, 283, 283, null);
-
- 			// final int x = cx; final int y = cy; final BufferedImage thisImage = img; final String currentName = fileNames.get(i);
- 			// addMouseListener(new MouseAdapter() {
-    //             @Override
-    //             public void mouseClicked(MouseEvent e) {
-    //                 if (thisImage != null) {
-    //                     Point me = e.getPoint();
-    //                     Rectangle bounds = new Rectangle(x, y, 283, 283);
-    //                     if (bounds.contains(me)) {
-    //                         System.out.println("in bounds of " + currentName);
-    //                         isEnlarged = true;
-    //                         g.clearRect(0, 0, 1000, 1500);
-    //                         repaint();
-    //                     }
-    //                     else {
-				// 			isEnlarged = false;
-				// 			g.clearRect(0, 0, 1000, 1500);
-				// 			repaint();
-    //                     }
-    //                 }
-    //             }
-
-    //         });
-
-    //         enlargeImage(img, g, fileNames.get(i), cx, cy);
 
  			cx+= 308;
  			if (cx == 974) {
  				cx = 50; cy+= 308;
  			}
  		}
+ 		g.setColor(Color.WHITE);
+		g.drawRect(0, 1200, 1000, 30);
+		g.fillRect(0, 1200, 1000, 30);
+		g.setColor(Color.BLACK);
+ 		g.drawString(photoDesc, 500 - fm.stringWidth(photoDesc)/2, 1200);
+ 		getDescription();
  		g.dispose();
 	}
-
-	// private void enlargeImage(BufferedImage img, Graphics g, String desc, int cx, int cy) {
-	// 	// http://letmecodejava.blogspot.com/2014/06/java-swing-enlarge-image.html
-	// 	if (isEnlarged) {
-	// 		g.setColor(new Color(0, 0, 0, 200));
-	// 		g.fillRect(0, 0, 1000, 1500);
-	// 		g.drawImage(img, 50, 180, 900, 900, null);
-	// 		Font f = new Font("SansSerif", Font.ITALIC, 40);
-	// 		g.setColor(Color.WHITE);
- // 	    	g.setFont(f);
-	// 		g.drawString(desc, 50, 1170);
-	// 	}
-	// 	else {
-	// 		g.drawImage(img, cx, cy, 283, 283, null);
-	// 	}
-	// }
 }
 
 class Rooms {
@@ -585,9 +582,10 @@ class Rooms {
 		Rooms r9 = new Rooms(n9, d9, rObjects9, rExits9, 9);
 
 		String n10 = "Kate's House";
-		String d10 = "Uh oh! We don't have a description for this yet. Go back to the beginning by typing 'go to Welcome!'";
+		String d10 = "tbh we really come to Kate's house for the food and her parents. Just kidding (kind of). While here, you get all nostalgic and remember that time we all slept over here and then decided to go to the Thanksgiving Day Parade...#neveragain. You find a photo from that night stashed away in Kate's room, and reminisce about that time we shoved 4 people on a bed while Kate slept on the floor.";
 		ArrayList<String> rObjects10 = new ArrayList<String>();
 		ArrayList<String> rExits10 = new ArrayList<String>();
+		rObjects10.add("90s Boy Band Photo");
 		rExits10.add("Wally");
 		Rooms r10 = new Rooms(n10, d10, rObjects10, rExits10, 10);
 
@@ -602,7 +600,7 @@ class Rooms {
 		Rooms r11 = new Rooms(n11, d11, rObjects11, rExits11, 11);
 
 		String n12 = "Nancy's House";
-		String d12 = "Uh oh! We don't have a description for this yet. Go back to the beginning by typing 'go to Welcome!'";
+		String d12 = "Welcome to Nan's house! We'll somehow randomly end up here, even though that wasn't originally in the plans, but it's all good.";
 		ArrayList<String> rObjects12 = new ArrayList<String>();
 		ArrayList<String> rExits12 = new ArrayList<String>();
 		rExits12.add("Nancy's car");
@@ -617,9 +615,10 @@ class Rooms {
 		Rooms r13 = new Rooms(n13, d13, rObjects13, rExits13, 13);
 
 		String n14 = "Movie Theater";
-		String d14 = "Uh oh! We don't have a description for this yet. Go back to the beginning by typing 'go to Welcome!'";
+		String d14 = "tbt to when Ali worked here and we all saw movies for free. Like that time we saw an early showing of Guardians of the Galaxy with unlimited food/drink that one night. Good times.";
 		ArrayList<String> rObjects14 = new ArrayList<String>();
 		ArrayList<String> rExits14 = new ArrayList<String>();
+		rObjects14.add("Movie Theater");
 		rExits14.add("Wally");
 		Rooms r14 = new Rooms(n14, d14, rObjects14, rExits14, 14);
 
@@ -641,21 +640,21 @@ class Rooms {
 		Rooms r16 = new Rooms(n16, d16, rObjects16, rExits16, 16);
 
 		String n17 = "Trader Joe's";
-		String d17 = "Ah, the holy land. W";
+		String d17 = "Ah, the holy land. It's so hard to decide what to get here, so we just wander all the aisles and pick up a couple of free samples in the back.";
 		ArrayList<String> rObjects17 = new ArrayList<String>();
 		ArrayList<String> rExits17 = new ArrayList<String>();
 		rExits17.add("Nancy's car");
 		Rooms r17 = new Rooms(n17, d17, rObjects17, rExits17,17);
 
 		String n18 = "Masago";
-		String d18 = "Uh oh! We don't have a description for this yet. Go back to the beginning by typing 'go to Welcome!'";
+		String d18 = "It's unclear if we came here for the half off sushi rolls or the perfect Instagram opportunity.";
 		ArrayList<String> rObjects18 = new ArrayList<String>();
 		ArrayList<String> rExits18 = new ArrayList<String>();
 		rExits18.add("Nancy's car");
 		Rooms r18 = new Rooms(n18, d18, rObjects18, rExits18,18);
 
 		String n19 = "Southold";
-		String d19 = "Uh oh! We don't have a description for this yet. Go back to the beginning by typing 'go to Welcome!'";
+		String d19 = "Southold is really the best place; we celebrate birthdays and new years and Cliquemases here together. Between classy wine and cheese and hummus nights, dinner consisting of carbs and cheese, climbing rocks on the beach, and driving into Greenport for ice skating, Aldo's, and small bookshops, this place is a Clique standard.";
 		ArrayList<String> rObjects19 = new ArrayList<String>();
 		ArrayList<String> rExits19 = new ArrayList<String>();
 		rExits19.add("Nancy's car");
